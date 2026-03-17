@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sampaguita</title>
+  <meta name="description" content="Sales tracker and business coach for small businesses" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1D9E75" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-light: #E1F5EE;
+      --green-border: #5DCAA5;
+      --amber-light: #FAEEDA;
+      --amber-border: #EF9F27;
+      --amber-text: #633806;
+      --green-text: #085041;
+      --bg: #F7F6F2;
+      --surface: #FFFFFF;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #1a1a18;
+      --text-muted: #6b6b67;
+      --text-hint: #9a9a96;
+      --stat-bg: #F0EFE9;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #181816;
+        --surface: #222220;
+        --border: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.14);
+        --text: #f0efe9;
+        --text-muted: #9a9a96;
+        --text-hint: #6b6b67;
+        --stat-bg: #2a2a28;
+        --green-light: #0a2e22;
+        --green-border: #0F6E56;
+        --green-text: #9FE1CB;
+        --amber-light: #2e1f08;
+        --amber-border: #854F0B;
+        --amber-text: #FAC775;
+      }
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; }
+    .app { max-width: 460px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .logo { font-size: 17px; font-weight: 600; color: var(--green); letter-spacing: -0.02em; }
+    .lang-toggle { display: flex; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; }
+    .lang-toggle button { padding: 5px 11px; font-size: 12px; font-weight: 500; background: transparent; border: none; cursor: pointer; color: var(--text-muted); font-family: inherit; transition: background 0.15s; }
+    .lang-toggle button.active { background: var(--surface); color: var(--text); }
+
+    /* nudges */
+    .nudge { border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 0.875rem; display: none; align-items: flex-start; gap: 10px; animation: slideIn 0.2s ease; }
+    .nudge.show { display: flex; }
+    .nudge.upsell { background: var(--green-light); border: 0.5px solid var(--green-border); }
+    .nudge.tip { background: var(--amber-light); border: 0.5px solid var(--amber-border); }
+    .nudge-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .nudge-body { font-size: 13px; line-height: 1.55; flex: 1; }
+    .nudge.upsell .nudge-body { color: var(--green-text); }
+    .nudge.tip .nudge-body { color: var(--amber-text); }
+    .nudge-close { background: none; border: none; cursor: pointer; font-size: 13px; padding: 0 0 0 8px; opacity: 0.5; flex-shrink: 0; color: var(--text); }
+    .nudge-close:hover { opacity: 1; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* add sale form */
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.125rem; margin-bottom: 0.875rem; }
+    .form-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .field { flex: 1; }
+    .field label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .field input { width: 100%; height: 38px; padding: 0 10px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.15s; }
+    .field input:focus { border-color: var(--green); }
+    .field input::placeholder { color: var(--text-hint); }
+    .add-btn { height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border-radius: var(--radius-sm); background: var(--green); border: none; color: white; white-space: nowrap; transition: background 0.15s, transform 0.1s; }
+    .add-btn:hover { background: var(--green-dark); }
+    .add-btn:active { transform: scale(0.97); }
+
+    /* stats */
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 0.875rem; }
+    .stat { background: var(--stat-bg); border-radius: var(--radius-sm); padding: 0.75rem 0.875rem; }
+    .stat-label { font-size: 10px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-value { font-size: 19px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+
+    /* sales list */
+    .sales-wrap { margin-bottom: 0.875rem; }
+    .sale-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+    .sale-item:last-child { border-bottom: none; }
+    .sale-desc { font-size: 13px; font-weight: 500; color: var(--text); }
+    .sale-time { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+    .sale-right { display: flex; align-items: center; gap: 4px; }
+    .sale-amount { font-size: 14px; font-weight: 600; color: var(--green); }
+    .del-btn { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 12px; padding: 4px; opacity: 0.5; transition: opacity 0.15s; }
+    .del-btn:hover { opacity: 1; }
+    .empty { text-align: center; padding: 2rem 0; color: var(--text-hint); font-size: 13px; }
+
+    /* advice */
+    .advice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .advice-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .tips-btn { padding: 5px 12px; font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; border-radius: var(--radius-sm); background: transparent; border: 0.5px solid var(--border-strong); color: var(--text); transition: background 0.15s; }
+    .tips-btn:hover { background: var(--stat-bg); }
+    .tips-btn:disabled { opacity: 0.4; cursor: default; }
+    .advice-body { font-size: 13px; line-height: 1.75; color: var(--text-muted); white-space: pre-line; }
+    .advice-body.loading { font-style: italic; color: var(--text-hint); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">sampaguita</div>
+    <div class="lang-toggle">
+      <button class="active" onclick="setLang('en',this)">English</button>
+      <button onclick="setLang('fil',this)">Filipino</button>
+    </div>
+  </div>
+
+  <div class="nudge upsell" id="nudge-upsell">
+    <div class="nudge-icon">💬</div>
+    <div class="nudge-body" id="nudge-upsell-text"></div>
+    <button class="nudge-close" onclick="closeNudge('upsell')">✕</button>
+  </div>
+  <div class="nudge tip" id="nudge-tip">
+    <div class="nudge-icon">💡</div>
+    <div class="nudge-body" id="nudge-tip-text"></div>
+    <button class="nudge-close" onclick="closeNudge('tip')">✕</button>
+  </div>
+
+  <div class="card">
+    <div class="form-row">
+      <div class="field" style="flex:2;">
+        <label id="lbl-desc">What did you sell?</label>
+        <input type="text" id="input-desc" placeholder="e.g. Sinigang, 1 order" />
+      </div>
+      <div class="field">
+        <label id="lbl-amount">Amount (₱)</label>
+        <input type="number" id="input-amount" placeholder="150" min="0" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label id="lbl-time">Time</label>
+        <input type="time" id="input-time" />
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button class="add-btn" id="add-btn" onclick="addSale()">+ Log sale</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label" id="lbl-total">Today's total</div><div class="stat-value" id="stat-total">₱0</div></div>
+    <div class="stat"><div class="stat-label" id="lbl-count">Sales</div><div class="stat-value" id="stat-count">0</div></div>
+    <div class="stat"><div class="stat-label" id="lbl-avg">Avg. sale</div><div class="stat-value" id="stat-avg">₱0</div></div>
+  </div>
+
+  <div class="sales-wrap card" id="sales-list">
+    <div class="empty" id="empty-msg">No sales yet. Log your first one above.</div>
+  </div>
+
+  <div class="card">
+    <div class="advice-header">
+      <div class="advice-title" id="lbl-coach">Business coach</div>
+      <button class="tips-btn" id="tips-btn" onclick="getAdvice()">Get tips ↗</button>
+    </div>
+    <div class="advice-body" id="advice-body">Log a few sales then tap "Get tips" for personalized advice on growing your business.</div>
+  </div>
+</div>
+
+<script>
+const T = {
+  en: {
+    desc:'What did you sell?', amount:'Amount (₱)', time:'Time', addBtn:'+ Log sale',
+    total:"Today's total", count:'Sales', avg:'Avg. sale',
+    coach:'Business coach', tipsBtn:'Get tips ↗',
+    empty:'No sales yet. Log your first one above.',
+    placeholder:'Log a few sales then tap "Get tips" for personalized advice.',
+    loading:'Getting your tips...', noSales:'Log at least one sale first.',
+    ph2:'e.g. Sinigang, 1 order',
+    upsells:[
+      'Did you ask if they wanted anything else to go with that?',
+      'Did you offer a drink or dessert on the side?',
+      'Great sale! Did you mention any of your other items?',
+      'Did you let them know about your bestsellers?',
+      'Before they left — did you offer them something extra?',
+      'Would they like to add anything for just a little more?',
+    ],
+    tips:[
+      'Slow moment? Post a quick promo on Facebook to bring people in.',
+      'Try a bundle deal — 2 items at a slightly lower combined price increases order size.',
+      'A handwritten loyalty card (buy 5, get 1 free) can turn a one-time buyer into a regular.',
+      'If you have leftover stock near closing, offer a small discount rather than waste it.',
+      'Ask your next customer how they heard about you — it helps you focus your marketing.',
+    ]
+  },
+  fil: {
+    desc:'Ano ang nabenta mo?', amount:'Halaga (₱)', time:'Oras', addBtn:'+ I-log',
+    total:'Kabuuan ngayon', count:'Mga benta', avg:'Katamtaman',
+    coach:'Business coach', tipsBtn:'Kumuha ng tips ↗',
+    empty:'Wala pang benta. I-log ang una mo sa itaas.',
+    placeholder:'Mag-log ng ilang benta tapos pindutin ang "Kumuha ng tips".',
+    loading:'Kinukuha ang iyong mga tips...', noSales:'Mag-log muna ng isang benta.',
+    ph2:'hal. Sinigang, 1 order',
+    upsells:[
+      'Nagtanong ka ba kung gusto nila ng ibang pagkain?',
+      'Nag-alok ka ba ng inumin o dessert?',
+      'Magandang benta! Naipakilala mo ba ang iyong ibang produkto?',
+      'Sinabi mo ba sa kanila ang tungkol sa iyong mga bestseller?',
+      'Bago sila umalis — nag-alok ka ba ng dagdag?',
+      'Gusto ba nilang magdagdag ng kaunti para sa mas malaking order?',
+    ],
+    tips:[
+      'Tahimik ngayon? Mag-post ng mabilis na promo sa Facebook.',
+      'Subukan ang bundle deal — 2 items sa mas mababang presyo para mas malaki ang benta.',
+      'Ang loyalty card — kahit sulat-kamay — ay nagbibigay ng dahilan para bumalik ang customers.',
+      'Kung malapit na magsara at may natira, mag-alok ng diskwento para huwag masayang.',
+      'Tanungin ang susunod na customer kung paano ka nila nalaman — makakatipid ka sa marketing.',
+    ]
+  }
+};
+
+let lang = 'en', sales = [], saleCount = 0;
+
+function setLang(l, btn) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lbl-desc').textContent = T[l].desc;
+  document.getElementById('lbl-amount').textContent = T[l].amount;
+  document.getElementById('lbl-time').textContent = T[l].time;
+  document.getElementById('add-btn').textContent = T[l].addBtn;
+  document.getElementById('lbl-total').textContent = T[l].total;
+  document.getElementById('lbl-count').textContent = T[l].count;
+  document.getElementById('lbl-avg').textContent = T[l].avg;
+  document.getElementById('lbl-coach').textContent = T[l].coach;
+  document.getElementById('tips-btn').textContent = T[l].tipsBtn;
+  document.getElementById('input-desc').placeholder = T[l].ph2;
+  if (sales.length === 0) {
+    const em = document.getElementById('empty-msg');
+    if (em) em.textContent = T[l].empty;
+    document.getElementById('advice-body').textContent = T[l].placeholder;
+  }
+}
+
+function nowTime() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+document.getElementById('input-time').value = nowTime();
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function closeNudge(t) { document.getElementById('nudge-' + t).classList.remove('show'); }
+function showNudge(t, txt) {
+  closeNudge(t);
+  document.getElementById('nudge-' + t + '-text').textContent = txt;
+  setTimeout(() => document.getElementById('nudge-' + t).classList.add('show'), 50);
+}
+
+function addSale() {
+  const desc = document.getElementById('input-desc').value.trim();
+  const amount = parseFloat(document.getElementById('input-amount').value);
+  const time = document.getElementById('input-time').value || nowTime();
+  if (!desc || isNaN(amount) || amount <= 0) return;
+  sales.push({ desc, amount, time, id: Date.now() });
+  saleCount++;
+  document.getElementById('input-desc').value = '';
+  document.getElementById('input-amount').value = '';
+  document.getElementById('input-time').value = nowTime();
+  closeNudge('upsell'); closeNudge('tip');
+  showNudge('upsell', pick(T[lang].upsells));
+  if (saleCount % 3 === 0) setTimeout(() => showNudge('tip', pick(T[lang].tips)), 700);
+  render();
+}
+document.getElementById('input-amount').addEventListener('keydown', e => { if (e.key === 'Enter') addSale(); });
+
+function deleteSale(id) { sales = sales.filter(s => s.id !== id); render(); }
+
+function render() {
+  const total = sales.reduce((s, x) => s + x.amount, 0);
+  const avg = sales.length ? total / sales.length : 0;
+  document.getElementById('stat-total').textContent = '₱' + Math.round(total).toLocaleString();
+  document.getElementById('stat-count').textContent = sales.length;
+  document.getElementById('stat-avg').textContent = '₱' + Math.round(avg).toLocaleString();
+  const list = document.getElementById('sales-list');
+  if (sales.length === 0) {
+    list.innerHTML = '<div class="empty" id="empty-msg">' + T[lang].empty + '</div>';
+    document.getElementById('advice-body').textContent = T[lang].placeholder;
+    return;
+  }
+  list.innerHTML = [...sales].reverse().map(s => `
+    <div class="sale-item">
+      <div><div class="sale-desc">${s.desc}</div><div class="sale-time">${s.time}</div></div>
+      <div class="sale-right">
+        <span class="sale-amount">₱${Math.round(s.amount).toLocaleString()}</span>
+        <button class="del-btn" onclick="deleteSale(${s.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function getAdvice() {
+  if (!sales.length) { document.getElementById('advice-body').textContent = T[lang].noSales; return; }
+  const btn = document.getElementById('tips-btn');
+  const el = document.getElementById('advice-body');
+  btn.disabled = true;
+  el.textContent = T[lang].loading;
+  el.className = 'advice-body loading';
+  const total = sales.reduce((s, x) => s + x.amount, 0);
+  const avg = total / sales.length;
+  const items = sales.map(s => `${s.time} – ${s.desc}: ₱${s.amount}`).join('\n');
+  const langInstr = lang === 'fil' ? 'Respond in Filipino (Tagalog).' : 'Respond in English.';
+  const prompt = `You are a practical business coach for small and micro business owners in the Philippines. ${langInstr}
+
+Today's sales:
+${items}
+
+Total: ₱${Math.round(total).toLocaleString()} | Sales: ${sales.length} | Avg: ₱${Math.round(avg).toLocaleString()}
+
+Give 3 short, very specific, actionable tips to help grow this business today. Base them on the actual items sold and timing. Ideas: promos, bundle deals, upselling, peak hour strategy, pricing tweaks, loyalty offers, social media posts. Be direct and concrete — not generic. Each tip is 1-2 sentences. Separate with a blank line. No numbering, bullets, or headers.`;
+  try {
+    const res = await fetch('/api/advice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    el.textContent = data.text || 'Could not load tips. Try again.';
+    el.className = 'advice-body';
+  } catch(e) {
+    el.textContent = 'Something went wrong. Please try again.';
+    el.className = 'advice-body';
+  }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
